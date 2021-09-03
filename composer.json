@@ -1,5 +1,5 @@
 {
-  "name": "sitmp/saml",
+  "name": "sitmpcz/saml",
   "type": "library",
   "minimum-stability": "dev",
   "description": "Integration OneloginSAML IdP to Nette",
