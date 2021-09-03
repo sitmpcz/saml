@@ -17,6 +17,7 @@
     "nette/application": "@dev",
     "tracy/tracy": "@dev"
   },
+  "minimum-stability": "dev",
   "autoload": {
     "classmap": ["src/"]
   }
