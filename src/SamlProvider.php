@@ -1,0 +1,97 @@
+<?php
+declare(strict_types=1);
+
+namespace Sitmp\Saml;
+
+
+use Nette\Http\Request;
+use Nette\Http\Response;
+use Nette\SmartObject;
+use OneLogin\Saml2\Auth;
+use OneLogin\Saml2\Settings;
+use Tracy\Debugger;
+
+
+class SamlProvider
+{
+
+    use SmartObject;
+
+
+    /** @var string */
+    private $x509_IdP_key;
+
+    /** @var string */
+    private $x509_SP_key;
+
+    /** @var string */
+    private $private_key;
+
+    /** @var string */
+    private $url_idp_sign_in;
+
+    /** @var string */
+    private $url_idp_sign_out;
+
+    /** @var string */
+    private $url_idp;
+
+    /** @var string */
+    private $url;
+
+    /** @var string */
+    private $backlink;
+
+
+    public function __construct(array $config, Request $url)
+    {
+        $this->x509_IdP_key = $config['public_IdP_key'];
+        $this->x509_SP_key = $config['public_SP_key'];
+        $this->private_key = $config['private_SP_key'];
+        $this->url_idp = $config['url_idp'];
+        $this->url_idp_sign_in = $config['url_idp_sign_in'];
+        $this->url_idp_sign_out = $config['url_idp_sign_out'];
+        $this->backlink = $config['backlink'];
+        $this->url = $url->getUrl()->getHostUrl();
+        if (!isset($config['saml_force_http']) || (isset($config['saml_force_http']) && $config['saml_force_http'] === false)) {
+            $this->url = str_replace('http', 'https', $this->url);
+        }
+
+    }
+
+    public function getBacklink()
+    {
+        return $this->backlink;
+    }
+
+    public function getSettingsInfo(): array
+    {
+        return array('debug' => true,
+            'sp' => array(
+                'entityId' => $this->url . '/saml/metadata',
+                'assertionConsumerService' => array(
+                    'url' => $this->url . '/saml/acs',
+                ),
+                'singleLogoutService' => array(
+                    'url' => $this->url . '/saml/sls',
+                ),
+                'NameIDFormat' => 'urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress',
+                'x509cert' => $this->x509_SP_key,
+                'privateKey' => $this->private_key
+            ),
+            'idp' => array(
+                'entityId' => $this->url_idp,
+                'singleSignOnService' => array(
+                    'url' => $this->url_idp_sign_in,
+                ),
+                'singleLogoutService' => array(
+                    'url' => $this->url_idp_sign_out,
+                    'binding' => 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect',
+                ),
+                'x509cert' => $this->x509_IdP_key,
+            ),
+        );
+    }
+
+
+}

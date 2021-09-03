@@ -1,0 +1,23 @@
+{
+  "name": "sitmp/saml",
+  "type": "library",
+  "minimum-stability": "dev",
+  "description": "Integration OneloginSAML IdP to Nette",
+  "keywords": [
+    "nette",
+    "php-saml"
+  ],
+  "require": {
+    "php": ">=7.1",
+    "nette/di": "^2.4.7 || ^3.0",
+    "onelogin/php-saml": "4.0.0"
+  },
+  "require-dev": {
+    "nette/tester": "@dev",
+    "nette/application": "@dev",
+    "tracy/tracy": "@dev"
+  },
+  "autoload": {
+    "classmap": ["src/"]
+  }
+}
