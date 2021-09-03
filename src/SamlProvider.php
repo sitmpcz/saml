@@ -66,7 +66,7 @@ class SamlProvider
 
     public function getSettingsInfo(): array
     {
-        return array('debug' => true,
+        return array('strict' => true, 'debug' => false,
             'sp' => array(
                 'entityId' => $this->url . '/saml/metadata',
                 'assertionConsumerService' => array(
@@ -90,6 +90,26 @@ class SamlProvider
                 ),
                 'x509cert' => $this->x509_IdP_key,
             ),
+            'security' => array(
+                'authnRequestsSigned' => true,
+                'logoutRequestSigned' => true,
+                'signMetadata' => true,
+                'wantMessagesSigned' => true,
+                'wantAssertionsEncrypted' => true,
+                'wantAssertionsSigned' => true,
+                'signatureAlgorithm' => 'http://www.w3.org/2001/04/xmldsig-more#rsa-sha384',
+                'digestAlgorithm' => 'http://www.w3.org/2001/04/xmldsig-more#sha384',
+            ),
+            'contactPerson' => array (
+                'technical' => array (
+                    'givenName' => 'Jakub Belka',
+                    'emailAddress' => 'belka@plzen.eu'
+                ),
+                'support' => array (
+                    'givenName' => 'Helpdesk SITMP',
+                    'emailAddress' => 'helpdesk@plzen.eu'
+                )
+            )
         );
     }
 
