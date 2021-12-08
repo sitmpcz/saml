@@ -42,7 +42,7 @@ class SamlPresenter extends Nette\Application\UI\Presenter
         $request->setParameters($params);
         $params = $request->getParameters();
         unset($params[self::ACTION_KEY], $params[self::PRESENTER_KEY]);
-        return $request->url.urldecode(http_build_query($params, '', ', '));
+        return $request->getUrl().urldecode(http_build_query($params));
     }
 
     public function actionAcs(): void
