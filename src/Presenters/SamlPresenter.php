@@ -19,13 +19,31 @@ class SamlPresenter extends Nette\Application\UI\Presenter
         Utils::setProxyVars(true);
     }
 
-    public function actionDefault()
+    // pokud je jako parametr zadan backink, poslu ho i do saml jako RelayState
+    public function actionDefault(?string $backlink = null): void
     {
         $auth = new Auth($this->samlProvider->getSettingsInfo());
-        $auth->login();
+        $backlinkUrl = null;
+        if ($backlink) $backlinkUrl = $this->backlink2Url($backlink);
+        $auth->login($backlinkUrl);
     }
 
-    public function actionAcs()
+    // convert backlink to url
+    private function backlink2Url(string $key): ?string
+    {
+        $session = $this->getSession('Nette.Application/requests');
+        if (!isset($session[$key]) || ($session[$key][0] !== null && $session[$key][0] !== $this->getUser()->getId())) {
+            return null;
+        }
+        $request = clone $session[$key][1];
+        unset($session[$key]);
+        $params = $request->getParameters();
+        $params[self::FLASH_KEY] = $this->getFlashKey();
+        $request->setParameters($params);
+        return $this->requestToUrl($request);
+    }
+
+    public function actionAcs(): void
     {
         $auth = new Auth($this->samlProvider->getSettingsInfo());
         if (isset($_SESSION) && isset($_SESSION['AuthNRequestID'])) {
@@ -48,19 +66,21 @@ class SamlPresenter extends Nette\Application\UI\Presenter
             echo "<p>Not authenticated</p>";
             exit();
         }
-        $saml = $this->session->getSection('saml');
+        $saml = $this->getSession()->getSection('saml');
         $saml->samlUserdata = $auth->getAttributes();
         $saml->samlNameId = $auth->getNameId();
         $saml->samlNameIdFormat = $auth->getNameIdFormat();
         $saml->samlNameIdNameQualifier = $auth->getNameIdNameQualifier();
         $saml->samlNameIdSPNameQualifier = $auth->getNameIdSPNameQualifier();
         $saml->samlSessionIndex = $auth->getSessionIndex();
-        if (isset($_POST['RelayState']) && Utils::getSelfURL() != $_POST['RelayState']) {
-            $this->redirect($this->samlProvider->getBacklink());
-        }
+        //  if (isset($_POST['RelayState']) && Utils::getSelfURL() != $_POST['RelayState']) {
+        //    $this->redirect($this->samlProvider->getBacklink());
+        // }
+        // relayState is saved in session backlinkUrl (check self URL !!!)
+        $saml->backlinkUrl = $this->getHttpRequest->getPost('RelayState');
     }
 
-    public function actionLogout()
+    public function actionLogout(): void
     {
         $auth = new Auth($this->samlProvider->getSettingsInfo());
         $returnTo = null;
@@ -90,7 +110,7 @@ class SamlPresenter extends Nette\Application\UI\Presenter
         $auth->logout($returnTo, $parameters, $nameId, $sessionIndex, false, $nameIdFormat, $samlNameIdNameQualifier, $samlNameIdSPNameQualifier);
     }
 
-    public function actionSls()
+    public function actionSls(): void
     {
         $auth = new Auth($this->samlProvider->getSettingsInfo());
         if (isset($_SESSION) && isset($_SESSION['LogoutRequestID'])) {
@@ -112,7 +132,7 @@ class SamlPresenter extends Nette\Application\UI\Presenter
         }
     }
 
-    public function actionMetadata()
+    public function actionMetadata(): void
     {
         try {
             #$auth = new OneLogin_Saml2_Auth($settingsInfo);
