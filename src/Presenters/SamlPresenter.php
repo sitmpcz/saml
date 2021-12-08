@@ -39,9 +39,10 @@ class SamlPresenter extends Nette\Application\UI\Presenter
         $request = clone $session[$key][1];
         unset($session[$key]);
         $params = $request->getParameters();
-        $params[self::FLASH_KEY] = $this->getFlashKey();
         $request->setParameters($params);
-        return $this->requestToUrl($request);
+        $params = $request->getParameters();
+        unset($params[self::ACTION_KEY], $params[self::PRESENTER_KEY]);
+        return $request->url.urldecode(http_build_query($params, '', ', '));
     }
 
     public function actionAcs(): void
