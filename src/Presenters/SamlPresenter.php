@@ -75,7 +75,7 @@ class SamlPresenter extends Nette\Application\UI\Presenter
         //    $this->redirect($this->samlProvider->getBacklink());
         // }
         // relayState is saved in session backlinkUrl (check self URL !!!)
-        $saml->backlinkUrl = $this->getHttpRequest->getPost('RelayState');
+        $saml->backlinkUrl = $this->getHttpRequest()->getPost('RelayState');
     }
 
     public function actionLogout(): void
