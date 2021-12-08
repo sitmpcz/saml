@@ -26,6 +26,7 @@ class SamlPresenter extends Nette\Application\UI\Presenter
         $backlinkUrl = null;
         if ($backlink) $backlinkUrl = $this->backlink2Url($backlink);
         $auth->login($backlinkUrl);
+
     }
 
     // convert backlink to url
