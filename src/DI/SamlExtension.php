@@ -20,6 +20,7 @@ class SamlExtension extends CompilerExtension
             'url_idp_sign_in' => Expect::string()->required()->dynamic(),
             'url_idp_sign_out' => Expect::string()->required()->dynamic(),
             'backlink' => Expect::string()->required(),
+            'saml_force_http' => Expect::bool()->default(false),
         ]);
     }
 
