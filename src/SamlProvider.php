@@ -99,6 +99,7 @@ class SamlProvider
                 'wantAssertionsSigned' => true,
                 'signatureAlgorithm' => 'http://www.w3.org/2001/04/xmldsig-more#rsa-sha384',
                 'digestAlgorithm' => 'http://www.w3.org/2001/04/xmldsig-more#sha384',
+                'wantNameId' => false,
             ),
             'contactPerson' => array (
                 'technical' => array (
