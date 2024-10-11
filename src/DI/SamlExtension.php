@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Sitmp\Saml\DI;
 
+use Nette;
 use Nette\DI\CompilerExtension;
 use Nette\Schema\Expect;
 use Sitmp\Saml\SamlProvider;
@@ -10,7 +11,7 @@ use Sitmp\Saml\SamlProvider;
 
 class SamlExtension extends CompilerExtension
 {
-    public function getConfigSchema(): \Nette\Schema\Schema
+    public function getConfigSchema(): Nette\Schema\Schema
     {
         return Expect::structure([
             'public_IdP_key' => Expect::string()->required()->dynamic(),
@@ -21,6 +22,13 @@ class SamlExtension extends CompilerExtension
             'url_idp_sign_out' => Expect::string()->required()->dynamic(),
             'backlink' => Expect::string()->required(),
             'saml_force_http' => Expect::bool()->default(false),
+            // developer can use additional config of ""
+            // more info at https://github.com/SAML-Toolkits/php-saml?tab=readme-ov-file#settings
+            // examples:
+            // ['debug' => true]
+            // ['security' => ['wantNameId' => false]]
+            // ['contactPerson' => ['technical' => ['givenName'=>'Beda','emailAddress'=>'beda@beda.cz']]]
+            'extended_config' => Expect::array()->default([]),
         ]);
     }
 

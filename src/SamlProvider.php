@@ -5,11 +5,11 @@ namespace Sitmp\Saml;
 
 
 use Nette\Http\Request;
-use Nette\Http\Response;
+//use Nette\Http\Response;
 use Nette\SmartObject;
-use OneLogin\Saml2\Auth;
-use OneLogin\Saml2\Settings;
-use Tracy\Debugger;
+//use OneLogin\Saml2\Auth;
+//use OneLogin\Saml2\Settings;
+//use Tracy\Debugger;
 
 
 class SamlProvider
@@ -42,6 +42,8 @@ class SamlProvider
     /** @var string */
     private $backlink;
 
+    /** @var array */
+    private $extended_config;
 
     public function __construct(array $config, Request $url)
     {
@@ -56,17 +58,17 @@ class SamlProvider
         if (!isset($config['saml_force_http']) || (isset($config['saml_force_http']) && $config['saml_force_http'] === false)) {
             $this->url = str_replace('http', 'https', $this->url);
         }
-
+        $this->extended_config =  $config['extended_config'];
     }
 
-    public function getBacklink()
+    public function getBacklink(): string
     {
         return $this->backlink;
     }
 
-    public function getSettingsInfo(): array
+     public function getSettingsInfo(): array
     {
-        return array('strict' => true, 'debug' => false,
+        $retval =  array('strict' => true, 'debug' => false,
             'sp' => array(
                 'entityId' => $this->url . '/saml/metadata',
                 'assertionConsumerService' => array(
@@ -111,6 +113,8 @@ class SamlProvider
                 )
             )
         );
+        //return array_merge($retval, $this->extended_config);
+        return array_merge_recursive($retval, $this->extended_config);
     }
 
 

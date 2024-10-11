@@ -1,0 +1,6 @@
+{*prazdna sablona, ktera se vypise v pripade chyby pri SAML prihlasovani*}
+{block content}
+    {ifset samlErrorBlock}
+        {include samlErrorBlock}
+    {/ifset}
+{/block}
