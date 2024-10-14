@@ -46,8 +46,12 @@ abstract class BaseSamlPresenter  extends Nette\Application\UI\Presenter
         $request = clone $session[$key][1];
         unset($session[$key]);
         // marked as internal - suggested is $linkGenerator->requestToUrl
-        //return $this->requestToUrl($request);
-        return $this->linkGenerator->requestToUrl($request);
+        // required nette/application 3.2 and higher
+        if (method_exists($this->linkGenerator, 'requestToUrl')) {
+            return $this->linkGenerator->requestToUrl($request);
+        } else {
+            return $this->requestToUrl($request);
+        }
     }
 
 
