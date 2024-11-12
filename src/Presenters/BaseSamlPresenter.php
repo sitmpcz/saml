@@ -188,7 +188,8 @@ abstract class BaseSamlPresenter  extends Nette\Application\UI\Presenter
             $metadata = $settings->getSPMetadata();
             $errors = $settings->validateMetadata($metadata);
             if (empty($errors)) {
-                $this->getHttpResponse()->setHeader('Content-Type', 'text/xml');
+                //$this->getHttpResponse()->setHeader('Content-Type', 'text/xml');
+                $this->getHttpResponse()->setContentType('text/xml', 'UTF-8');
                 $this->sendResponse(new Nette\Application\Responses\TextResponse($metadata));
             } else {
                 throw new OneLogin\Saml2\Error(
@@ -198,6 +199,7 @@ abstract class BaseSamlPresenter  extends Nette\Application\UI\Presenter
             }
         } catch (\Exception $e) {
             echo $e->getMessage();
+            $this->terminate();
         }
     }
 }
