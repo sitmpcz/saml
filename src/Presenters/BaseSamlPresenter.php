@@ -55,6 +55,15 @@ abstract class BaseSamlPresenter  extends Nette\Application\UI\Presenter
     }
 
 
+    // function for handle generic error - you can overwrite it a implement logging and notification
+    public function handleGenericError(\Exception $exception): void
+    {
+        // nejaky log ?
+        $this->flashMessage("Nepodařilo se vás přihlásit (1)");
+        $this->redirect($this->samlProvider->getBacklink());
+
+    }
+
     // function for handle auth error - you can overwrite it a implement logging and notification
     public function handleAuthError(\Exception $exception): void
     {
@@ -64,7 +73,7 @@ abstract class BaseSamlPresenter  extends Nette\Application\UI\Presenter
         //\Tracy\Debugger::log($exception->getMessage(), Tracy\ILogger::EXCEPTION);
 
         // proved redirect ???
-        $this->flashMessage("Nepodařilo se vás přihlásit");
+        $this->flashMessage("Nepodařilo se vás přihlásit (2)");
         $this->redirect($this->samlProvider->getBacklink());
 
         /*
@@ -91,6 +100,9 @@ abstract class BaseSamlPresenter  extends Nette\Application\UI\Presenter
             $auth->processResponse($requestID);
         } catch (ValidationError $e) {
             $this->handleAuthError($e);
+        } catch (\Exception $e) {
+            // for example GET method
+            $this->handleGenericError($e);
         }
 
         $errors = $auth->getErrors();
