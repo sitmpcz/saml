@@ -45,6 +45,10 @@ class SamlProvider
     /** @var array */
     private $extended_config;
 
+    /** @var bool */
+    private $no_publish_slo_url;
+
+
     public function __construct(array $config, Request $url)
     {
         $this->x509_IdP_key = $config['public_IdP_key'];
@@ -59,6 +63,7 @@ class SamlProvider
             $this->url = str_replace('http', 'https', $this->url);
         }
         $this->extended_config =  $config['extended_config'];
+        $this->no_publish_slo_url = $config['no_publish_slo_url'];
     }
 
     public function getBacklink(): string
@@ -113,6 +118,10 @@ class SamlProvider
                 )
             )
         );
+        // developer can disable to publish singleLogoutService url to metadata
+        if ($this->no_publish_slo_url) {
+            unset($retval['sp']['singleLogoutService']);
+        }
         //return array_merge($retval, $this->extended_config);
         return array_merge_recursive($retval, $this->extended_config);
     }

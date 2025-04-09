@@ -183,10 +183,13 @@ abstract class BaseSamlPresenter  extends Nette\Application\UI\Presenter
             echo '<p>Successfully logged out</p>';
             exit();
         } else {
-            echo '<p>', implode(', ', $errors), '</p>';
-            if ($auth->getSettings()->isDebugActive()) {
-                echo '<p>' . $auth->getLastErrorReason() . '</p>';
-            }
+            //echo '<p>', implode(', ', $errors), '</p>';
+            //if ($auth->getSettings()->isDebugActive()) {
+            //    echo '<p>' . $auth->getLastErrorReason() . '</p>';
+            //}
+            $errorMessage = implode(', ', $errors);
+            if ($auth->getSettings()->isDebugActive()) $errorMessage .= " - ".$auth->getLastErrorReason();
+            $this->handleAuthError(new \Exception($errorMessage));
         }
     }
 

@@ -29,6 +29,8 @@ class SamlExtension extends CompilerExtension
             // ['security' => ['wantNameId' => false]]
             // ['contactPerson' => ['technical' => ['givenName'=>'Beda','emailAddress'=>'beda@beda.cz']]]
             'extended_config' => Expect::array()->default([]),
+            // developer can disable to publish singleLogoutService url to metadata
+            'no_publish_slo_url' => Expect::bool()->default(false),
         ]);
     }
 
