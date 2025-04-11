@@ -138,8 +138,27 @@ abstract class BaseSamlPresenter  extends Nette\Application\UI\Presenter
 
     }
 
+
+    // pokud je Nette/Security/User a je prihlaseny, tak ho odhlas (Saml:logout a Saml:sls)
+    public function logoutNetteAppUser(): void
+    {
+        try {
+            if ($this->getUser()->isLoggedIn()) {
+                $this->getUser()->logout();
+            }
+        } catch (Nette\InvalidStateException $e) {
+            // nastane pokud v presenteru neexistuje uzivatel, tak nic
+            // developer asi pro praci s uzivteli pouziva neco jineho nez Nette/Security/User
+            // a v tom pripade by si mel funkci logoutNetteAppUser pretizit s vlastni logikou
+        }
+    }
+
+
     public function actionLogout(): void
     {
+        // should I call $this->getUser->logout(); ??????
+        $this->logoutNetteAppUser();
+
         $auth = new Auth($this->samlProvider->getSettingsInfo());
         $returnTo = null;
         $parameters = array();
@@ -170,6 +189,9 @@ abstract class BaseSamlPresenter  extends Nette\Application\UI\Presenter
 
     public function actionSls(): void
     {
+        // should I call $this->getUser->logout(); ??????
+        $this->logoutNetteAppUser();
+
         $auth = new Auth($this->samlProvider->getSettingsInfo());
         if (isset($_SESSION) && isset($_SESSION['LogoutRequestID'])) {
             $requestID = $_SESSION['LogoutRequestID'];
