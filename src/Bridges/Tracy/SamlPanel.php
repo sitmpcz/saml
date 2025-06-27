@@ -6,6 +6,12 @@ namespace Sitmp\Saml\Bridges\Tracy;
 //use Sitmp\Saml\SamlProvider;
 use Tracy;
 
+// tracy panel
+// bohuzel se mi nedari ho automaticky zaregistrovat v SamlExtension (ale mozna je to i bezpecnejsi)
+// tam kde ho potrebuju, se da zapnout pomoci:
+// nejdriv si pomoci DI nacist public \Sitmp\Saml\SamlProvider$samlProvider;
+// a pak:
+// \Tracy\Debugger::getBar()->addPanel(new \Sitmp\Saml\Bridges\Tracy\SamlPanel($this->samlProvider->getSettingsInfo()));
 class SamlPanel implements Tracy\IBarPanel
 {
     private $config;
