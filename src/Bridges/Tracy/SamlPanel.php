@@ -51,12 +51,11 @@ class SamlPanel implements Tracy\IBarPanel
         foreach ($this->config as $key => $value)
         {
             // mask private key
-            if ((is_string($key)) and  (strpos($key, 'private')!== false)) {
-                $key.= '(masked)';
-                if (is_string($value) && strlen($value)>200) {
-                    $value = substr($value, 0, 50).'***************';
+            if ((is_array($value)) and  (array_key_exists('privateKey', $value))) {
+                if (is_string($value['privateKey']) && strlen($value['privateKey'])>200) {
+                    $value['privateKey'] = substr($value['privateKey'], 0, 80).'*************** (masked)';
                 } else {
-                    $value = '************************';
+                    $value['privateKey'] = '************************ (masked)';
                 }
             }
             $retval .= '<tr><th>'. htmlspecialchars((string) $key) .'</th><td>'.Tracy\Dumper::toHtml($value, [Tracy\Dumper::DEPTH => 3]).'</td></tr>';
