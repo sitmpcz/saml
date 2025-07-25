@@ -153,6 +153,15 @@ abstract class BaseSamlPresenter  extends Nette\Application\UI\Presenter
         }
     }
 
+    // what to do after successful logout?? Overwrite it to implement own "after logout" functionality
+    public function successfulLogoutAction(): void
+    {
+        // echo "Successfully logged out";
+        // exit();
+        echo "Odhlášení proběhlo v pořádku";
+        $this->terminate();
+    }
+
 
     public function actionLogout(): void
     {
@@ -202,8 +211,7 @@ abstract class BaseSamlPresenter  extends Nette\Application\UI\Presenter
         $auth->processSLO(false, $requestID);
         $errors = $auth->getErrors();
         if (empty($errors)) {
-            echo '<p>Successfully logged out</p>';
-            exit();
+            $this->successfulLogoutAction();
         } else {
             //echo '<p>', implode(', ', $errors), '</p>';
             //if ($auth->getSettings()->isDebugActive()) {
