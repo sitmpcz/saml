@@ -198,9 +198,6 @@ abstract class BaseSamlPresenter  extends Nette\Application\UI\Presenter
 
     public function actionSls(): void
     {
-        // should I call $this->getUser->logout(); ??????
-        $this->logoutNetteAppUser();
-
         $auth = new Auth($this->samlProvider->getSettingsInfo());
         if (isset($_SESSION) && isset($_SESSION['LogoutRequestID'])) {
             $requestID = $_SESSION['LogoutRequestID'];
@@ -211,6 +208,8 @@ abstract class BaseSamlPresenter  extends Nette\Application\UI\Presenter
         $auth->processSLO(false, $requestID);
         $errors = $auth->getErrors();
         if (empty($errors)) {
+            // should I call $this->getUser->logout(); ??????
+            $this->logoutNetteAppUser();
             $this->successfulLogoutAction();
         } else {
             //echo '<p>', implode(', ', $errors), '</p>';
