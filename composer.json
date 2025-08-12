@@ -1,7 +1,7 @@
 {
   "name": "sitmpcz/saml",
   "type": "library",
-  "minimum-stability": "dev",
+  "minimum-stability": "stable",
   "description": "Integration OneloginSAML IdP to Nette",
   "keywords": [
     "nette",
@@ -10,7 +10,7 @@
   "require": {
     "php": ">=7.1",
     "nette/di": "^2.4.7 || ^3.0",
-    "nette/application": "^3.2",
+    "nette/application": "^3.2 || ^4.0",
     "onelogin/php-saml": "^4.0"
   },
   "require-dev": {
