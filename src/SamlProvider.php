@@ -52,7 +52,7 @@ class SamlProvider
     private $no_publish_slo_url;
 
     private string $library;
-    private ?SamlAdapter $adapter;
+    private ?SamlAdapter $adapter = null;
 
     public function __construct(array $config, Request $url)
     {
@@ -172,6 +172,12 @@ class SamlProvider
     public function slo($successCallback,$authErrorCallback): void
     {
         $this->getAdapter()->slo($successCallback,$authErrorCallback);
+    }
+
+
+    public function getMetadata(): string
+    {
+        return $this->getAdapter()->getMetadata();
     }
 
 

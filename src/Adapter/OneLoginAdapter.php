@@ -12,7 +12,7 @@ use Sitmp\Saml\SamlAdapter;
 final class OneLoginAdapter implements SamlAdapter
 {
     private array $settings;
-    private ?Auth $auth;
+    private ?Auth $auth = null;
 
     public function __construct(array $settings)
     {
@@ -71,6 +71,7 @@ final class OneLoginAdapter implements SamlAdapter
         return new SamlAcs(
             $this->getAuth()->getNameId(),
             $this->getAuth()->getNameIdFormat(),
+            // getAttributes se plni do samlUserdata
             $this->getAuth()->getAttributes(),
             $this->getAuth()->getNameIdNameQualifier(),
             $this->getAuth()->getNameIdSPNameQualifier(),

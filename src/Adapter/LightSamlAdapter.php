@@ -1,4 +1,8 @@
 <?php
+// pokud by se pripravovala varianta pro litesaml (nebo treba simplesaml),
+// oba by meli umel back channel logout
+// musi se nacist prislsna knihovna i composerem
+
 namespace Sitmp\Saml\Adapter;
 
 use Sitmp\Saml\SamlAcs;
