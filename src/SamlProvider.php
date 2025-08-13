@@ -7,6 +7,9 @@ namespace Sitmp\Saml;
 use Nette\Http\Request;
 //use Nette\Http\Response;
 use Nette\SmartObject;
+use Sitmp\Saml\Adapter\LightSamlAdapter;
+use Sitmp\Saml\Adapter\OneLoginAdapter;
+
 //use OneLogin\Saml2\Auth;
 //use OneLogin\Saml2\Settings;
 //use Tracy\Debugger;
@@ -48,6 +51,8 @@ class SamlProvider
     /** @var bool */
     private $no_publish_slo_url;
 
+    private string $library;
+    private ?SamlAdapter $adapter;
 
     public function __construct(array $config, Request $url)
     {
@@ -64,6 +69,7 @@ class SamlProvider
         }
         $this->extended_config =  $config['extended_config'];
         $this->no_publish_slo_url = $config['no_publish_slo_url'];
+        $this->library = $config['library'];
     }
 
     public function getBacklink(): string
@@ -71,7 +77,7 @@ class SamlProvider
         return $this->backlink;
     }
 
-     public function getSettingsInfo(): array
+    public function getSettingsInfo(): array
     {
         $retval =  array('strict' => true, 'debug' => false,
             'sp' => array(
@@ -124,6 +130,48 @@ class SamlProvider
         }
         //return array_merge($retval, $this->extended_config);
         return array_merge_recursive($retval, $this->extended_config);
+    }
+
+    // -----------------------------------------------------------------------------------
+    // implementace jednotlivych saml metod
+    // -----------------------------------------------------------------------------------
+
+
+    // nacterni adapteru, ktery bude realizovat jednotlive operace
+    private function getAdapter() {
+        if (!$this->adapter) {
+            if ($this->library === "litesaml") {
+                $this->adapter = new LightSamlAdapter($this->getSettingsInfo());
+            } else {
+                $this->adapter = new OneLoginAdapter($this->getSettingsInfo());
+            }
+        }
+        return $this->adapter;
+    }
+
+    // prihlaseni
+    public function login(?string $backlinkUrl): void
+    {
+        $this->getAdapter()->login($backlinkUrl);
+    }
+
+    // acs
+    // paremetry jsou callbacky presenteru, pro
+    // 1. zpracovani chyby prihlaseni
+    // 2. zpracovani obecne chyby
+    public function acs($authErrorCallback,$genericErrorCallback): SamlAcs
+    {
+      return $this->getAdapter()->acs($authErrorCallback,$genericErrorCallback);
+    }
+
+    public function logout(?string $returnTo, array $parameters, mixed $nameId, mixed $sessionIndex, bool $stay, mixed $nameIdFormat, mixed $samlNameIdNameQualifier, mixed $samlNameIdSPNameQualifier)
+    {
+        $this->getAdapter()->logout($returnTo, $parameters, $nameId, $sessionIndex, $stay, $nameIdFormat, $samlNameIdNameQualifier, $samlNameIdSPNameQualifier);
+    }
+
+    public function slo($successCallback,$authErrorCallback): void
+    {
+        $this->getAdapter()->slo($successCallback,$authErrorCallback);
     }
 
 
