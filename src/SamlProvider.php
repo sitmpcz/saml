@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace Sitmp\Saml;
 
-
+use Nette;
 use Nette\Http\Request;
 //use Nette\Http\Response;
 use Nette\SmartObject;
@@ -22,36 +22,39 @@ class SamlProvider
 
 
     /** @var string */
-    private $x509_IdP_key;
+    private string $x509_IdP_key;
 
     /** @var string */
-    private $x509_SP_key;
+    private string $x509_SP_key;
 
     /** @var string */
-    private $private_key;
+    private string $private_key;
 
     /** @var string */
-    private $url_idp_sign_in;
+    private string $url_idp_sign_in;
 
     /** @var string */
-    private $url_idp_sign_out;
+    private string $url_idp_sign_out;
 
     /** @var string */
-    private $url_idp;
+    private string $url_idp;
 
     /** @var string */
-    private $url;
+    private string $url;
 
     /** @var string */
-    private $backlink;
+    private string $backlink;
 
     /** @var array */
-    private $extended_config;
+    private array $extended_config;
 
     /** @var bool */
-    private $no_publish_slo_url;
+    private bool $no_publish_slo_url;
 
+    /** @var string */
     private string $library;
+
+    /** @var ?SamlAdapter */
     private ?SamlAdapter $adapter = null;
 
     public function __construct(array $config, Request $url)
@@ -140,10 +143,26 @@ class SamlProvider
     // nacterni adapteru, ktery bude realizovat jednotlive operace
     private function getAdapter() {
         if (!$this->adapter) {
-            if ($this->library === "litesaml") {
-                $this->adapter = new LightSamlAdapter($this->getSettingsInfo());
-            } else {
+            if ($this->library === "onelogin") {
+                if (!class_exists(\OneLogin\Saml2\Auth::class)) {
+                    throw new Nette\DI\InvalidConfigurationException("OneLogin PHP-SAML library is not installed");
+                }
                 $this->adapter = new OneLoginAdapter($this->getSettingsInfo());
+            } else if ($this->library === "litesaml") {
+                if (!class_exists(\LightSaml\SamlConstants::class)) {
+                    throw new Nette\DI\InvalidConfigurationException("LightSAML library is not installed.");
+                }
+                if (!class_exists(\Symfony\Component\HttpFoundation\Request::class)) {
+                    throw new Nette\DI\InvalidConfigurationException("LightSAML requires symfony/http-foundation");
+                }
+                $this->adapter = new LightSamlAdapter($this->getSettingsInfo());
+            } else if ($this->library === "simplesaml") {
+                if (!class_exists(\SimpleSAML\Auth\Simple::class)) {
+                    throw new Nette\DI\InvalidConfigurationException("SimpleSAML library is not installed.");
+                }
+                $this->adapter = new SimpleSamlAdapter($this->getSettingsInfo());
+            } else {
+                throw new Nette\DI\InvalidConfigurationException("Unsupported SAML adapter");
             }
         }
         return $this->adapter;
@@ -159,12 +178,21 @@ class SamlProvider
     // paremetry jsou callbacky presenteru, pro
     // 1. zpracovani chyby prihlaseni
     // 2. zpracovani obecne chyby
-    public function acs($authErrorCallback,$genericErrorCallback): SamlAcs
+    public function acs(?callable $authErrorCallback = null,?callable $genericErrorCallback = null): SamlAcs
     {
       return $this->getAdapter()->acs($authErrorCallback,$genericErrorCallback);
     }
 
-    public function logout(?string $returnTo, array $parameters, mixed $nameId, mixed $sessionIndex, bool $stay, mixed $nameIdFormat, mixed $samlNameIdNameQualifier, mixed $samlNameIdSPNameQualifier)
+    public function logout(
+        ?string $returnTo = null,
+        array $parameters = [],
+        ?string $nameId = null,
+        ?string $sessionIndex = null,
+        bool $stay = false,
+        ?string $nameIdFormat = null,
+        ?string $samlNameIdNameQualifier = null,
+        ?string $samlNameIdSPNameQualifier = null
+    ): void
     {
         $this->getAdapter()->logout($returnTo, $parameters, $nameId, $sessionIndex, $stay, $nameIdFormat, $samlNameIdNameQualifier, $samlNameIdSPNameQualifier);
     }

@@ -1,4 +1,7 @@
 <?php
+// OneLogin PHP Saml adapter
+// https://github.com/SAML-Toolkits/php-saml
+//composer require onelogin/php-saml
 
 namespace Sitmp\Saml\Adapter;
 
@@ -31,7 +34,7 @@ final class OneLoginAdapter implements SamlAdapter
         $this->getAuth()->login($returnTo);
     }
 
-    public function acs($authErrorCallback,$genericErrorCallback): SamlAcs
+    public function acs(?callable $authErrorCallback = null,?callable $genericErrorCallback = null): SamlAcs
     {
         if (isset($_SESSION) && isset($_SESSION['AuthNRequestID'])) {
             $requestID = $_SESSION['AuthNRequestID'];
@@ -42,15 +45,20 @@ final class OneLoginAdapter implements SamlAdapter
             $this->getAuth()->processResponse($requestID);
         } catch (ValidationError $e) {
             //$this->handleAuthError($e);
-            $authErrorCallback($e);
+            if ($authErrorCallback) {
+                $authErrorCallback($e);
+            }
         } catch (\Exception $e) {
             // for example unsupported method
             //$this->handleGenericError($e);
-            $genericErrorCallback($e);
+            if ($genericErrorCallback) {
+                $genericErrorCallback($e);
+            }
+
         }
 
         $errors = $this->getAuth()->getErrors();
-        if (!empty($errors)) {
+        if ((!empty($errors)) and ($authErrorCallback)) {
             /*echo '<p>', implode(', ', $errors), '</p>';
             if ($auth->getSettings()->isDebugActive()) {
                 echo '<p>' . $auth->getLastErrorReason() . '</p>';
@@ -66,7 +74,9 @@ final class OneLoginAdapter implements SamlAdapter
             //echo "<p>Not authenticated</p>";
             //exit();
             //$this->handleAuthError(new \Exception("Not authenticated"));
-            $authErrorCallback(new \Exception("Not authenticated"));
+            if ($authErrorCallback) {
+                $authErrorCallback(new \Exception("Not authenticated"));
+            }
         }
         return new SamlAcs(
             $this->getAuth()->getNameId(),
@@ -87,12 +97,22 @@ final class OneLoginAdapter implements SamlAdapter
         //$saml->backlinkUrl = $this->getHttpRequest()->getPost('RelayState');
     }
 
-    public function logout(?string $returnTo, array $parameters, mixed $nameId, mixed $sessionIndex, bool $stay, mixed $nameIdFormat, mixed $samlNameIdNameQualifier, mixed $samlNameIdSPNameQualifier): void
+    //public function logout(?string $returnTo, array $parameters, mixed $nameId, mixed $sessionIndex, bool $stay, mixed $nameIdFormat, mixed $samlNameIdNameQualifier, mixed $samlNameIdSPNameQualifier): void
+    public function logout(
+        ?string $returnTo = null,
+        array $parameters = [],
+        ?string $nameId = null,
+        ?string $sessionIndex = null,
+        bool $stay = false,
+        ?string $nameIdFormat = null,
+        ?string $nameIdNameQualifier = null,
+        ?string $nameIdSPNameQualifier = null
+    ): void
     {
-        $this->getAuth()->logout($returnTo, $parameters, $nameId, $sessionIndex, $stay, $nameIdFormat, $samlNameIdNameQualifier, $samlNameIdSPNameQualifier);
+        $this->getAuth()->logout($returnTo, $parameters, $nameId, $sessionIndex, $stay, $nameIdFormat, $nameIdNameQualifier, $nameIdSPNameQualifier);
     }
 
-    public function slo($successCallback,$authErrorCallback): void
+    public function slo(?callable $successCallback = null,?callable $authErrorCallback = null): void
     {
         //$auth = new Auth($this->samlProvider->getSettingsInfo());
         if (isset($_SESSION) && isset($_SESSION['LogoutRequestID'])) {
@@ -103,16 +123,18 @@ final class OneLoginAdapter implements SamlAdapter
 
         $this->getAuth()->processSLO(false, $requestID);
         $errors = $this->getAuth()->getErrors();
-        if (empty($errors)) {
+        if ((empty($errors)) and ($successCallback)) {
             $successCallback();
         } else {
             //echo '<p>', implode(', ', $errors), '</p>';
             //if ($auth->getSettings()->isDebugActive()) {
             //    echo '<p>' . $auth->getLastErrorReason() . '</p>';
             //}
-            $errorMessage = implode(', ', $errors);
-            if ($this->getAuth()->getSettings()->isDebugActive()) $errorMessage .= " - ".$this->getAuth()->getLastErrorReason();
-            $authErrorCallback(new \Exception($errorMessage));
+            if ($authErrorCallback) {
+                $errorMessage = implode(', ', $errors);
+                if ($this->getAuth()->getSettings()->isDebugActive()) $errorMessage .= " - ".$this->getAuth()->getLastErrorReason();
+                $authErrorCallback(new \Exception($errorMessage));
+            }
         }
     }
 

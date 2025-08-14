@@ -16,7 +16,7 @@ class SamlExtension extends CompilerExtension
         return Expect::structure([
             // doplnena moznost vyberu knihovny, ktera bude funkcionalitu zajistovat
             // onelogin neumoznuje back channel SLO s POST
-            'library' => Expect::anyOf('onelogin', 'litesaml')->default('onelogin'),
+            'library' => Expect::anyOf('onelogin', 'litesaml','simplesaml')->default('onelogin'),
             'public_IdP_key' => Expect::string()->required()->dynamic(),
             'public_SP_key' => Expect::string()->required()->dynamic(),
             'private_SP_key' => Expect::string()->required()->dynamic(),
