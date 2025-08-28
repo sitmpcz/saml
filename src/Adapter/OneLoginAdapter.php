@@ -142,6 +142,13 @@ final class OneLoginAdapter implements SamlAdapter
                 $authErrorCallback(new \Exception($errorMessage));
             }
         }
+        // if isset RelayState - redirect to
+        $relayState = $_GET['RelayState'] ?? null;
+        if ($relayState && Utils::getSelfURL() !== $relayState) {
+            $this->getAuth()->redirectTo($relayState);
+            exit;
+        }
+        //echo 'SLO done';
     }
 
     public function getMetadata(): string
