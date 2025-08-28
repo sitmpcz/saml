@@ -103,14 +103,15 @@ abstract class BaseSamlPresenter  extends Nette\Application\UI\Presenter
         }
     }
 
-    // what to do after successful logout?? Overwrite it to implement own "after logout" functionality
-    public function successfulLogoutAction(): void
+    // what to do after successfull slo logout?? Overwrite it to implement own "after logout" functionality
+    // nonsese - after succesfull slo app send redirect response to IdP
+    /*public function successfulLogoutAction(): void
     {
         // echo "Successfully logged out";
         // exit();
         echo "Odhlášení proběhlo v pořádku";
         $this->terminate();
-    }
+    }*/
 
 
     public function actionLogout(): void
@@ -153,7 +154,8 @@ abstract class BaseSamlPresenter  extends Nette\Application\UI\Presenter
         $this->samlProvider->slo(function () {
                 // should I call $this->getUser->logout(); ??????
                 $this->logoutNetteAppUser();
-                $this->successfulLogoutAction();
+                // only logout, let adapter to send correct LogoutResponse Success
+                //$this->successfulLogoutAction();
             },[$this,'handleAuthError']);
     }
 

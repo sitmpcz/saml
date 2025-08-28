@@ -121,11 +121,17 @@ final class OneLoginAdapter implements SamlAdapter
             $requestID = null;
         }
 
-        $this->getAuth()->processSLO(false, $requestID);
+        $this->getAuth()->processSLO(
+            false,
+            $requestID,
+            false,
+            $successCallback
+        );
         $errors = $this->getAuth()->getErrors();
-        if ((empty($errors)) and ($successCallback)) {
-            $successCallback();
-        } else {
+        //if ((empty($errors)) and ($successCallback)) {
+            //$successCallback();
+        //} else {
+        if (!empty($errors)) {
             //echo '<p>', implode(', ', $errors), '</p>';
             //if ($auth->getSettings()->isDebugActive()) {
             //    echo '<p>' . $auth->getLastErrorReason() . '</p>';
