@@ -157,6 +157,8 @@ abstract class BaseSamlPresenter  extends Nette\Application\UI\Presenter
                 // only logout, let adapter to send correct LogoutResponse Success
                 //$this->successfulLogoutAction();
             },[$this,'handleAuthError']);
+        // to be sure
+        $this->terminate();
     }
 
     public function actionMetadata(): void
